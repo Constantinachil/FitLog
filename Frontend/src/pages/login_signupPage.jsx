@@ -16,7 +16,7 @@ export default function LoginSignUpPage() {
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // Fetch questions from backend on load
+
   useEffect(() => {
     if (!isLogin) {
       axios.get("/api/security-questions")
@@ -83,8 +83,9 @@ export default function LoginSignUpPage() {
               required
             />
 
-            {/* Security Question Dropdown */}
+          <div className="mb-3">
             <select
+              className="form-control"
               name="securityQuestionId"
               value={formData.securityQuestionId}
               onChange={handleChange}
@@ -95,7 +96,7 @@ export default function LoginSignUpPage() {
                 <option key={q.id} value={q.id}>{q.question}</option>
               ))}
             </select>
-
+          </div>
             <input
               type="text"
               name="securityAnswer"
