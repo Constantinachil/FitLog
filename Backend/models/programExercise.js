@@ -2,24 +2,15 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
 const ProgramExercise = sequelize.define('ProgramExercise', {
-  sets: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  reps: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  duration: {
-    type: DataTypes.INTEGER, // in seconds or minutes
-    allowNull: true
-  },
-  day: {
-    type: DataTypes.INTEGER, // 1 = Monday, 7 = Sunday
-    allowNull: true
-  }
+  // optional metadata per program-exercise pairing:
+  sets:      { type: DataTypes.INTEGER, allowNull: true },
+  reps:      { type: DataTypes.INTEGER, allowNull: true },
+  duration:  { type: DataTypes.INTEGER, allowNull: true }, // seconds or minutes
+  day:       { type: DataTypes.INTEGER, allowNull: true }, // 1..7 if you want weekly plan later
+  order:     { type: DataTypes.INTEGER, allowNull: true }, // display order inside a day
 }, {
-  timestamps: false
+  tableName: 'ProgramExercises',
+  timestamps: true,
 });
 
 module.exports = ProgramExercise;

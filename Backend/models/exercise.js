@@ -2,28 +2,16 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
 const Exercise = sequelize.define('Exercise', {
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  description: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
-  bodyPart: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
-  equipment: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
-  imageUrl: {
-    type: DataTypes.STRING,
-    allowNull: true
-  }
+  name: { type: DataTypes.STRING, allowNull: false },
+  targetMuscle: { type: DataTypes.STRING },
+  equipment: { type: DataTypes.STRING },
+  gifUrl: { type: DataTypes.STRING },
+  bodyPart: { type: DataTypes.STRING },
+  sourceId: { type: DataTypes.STRING, unique: true },
+  instructions: { type: DataTypes.TEXT },
 }, {
-  timestamps: true
+  tableName: 'Exercises',
+  timestamps: true,
 });
 
 module.exports = Exercise;

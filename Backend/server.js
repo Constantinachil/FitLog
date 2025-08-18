@@ -4,6 +4,7 @@ const { sequelize } = require('./models');
 const userRoutes = require('./routes/userRoutes');
 const securityQuestionRoutes = require('./routes/securityQuestionRoutes');
 const programRoutes = require('./routes/programRoutes');
+const exerciseRoutes = require('./routes/exerciseRoutes');
 
 dotenv.config();
 const app = express();
@@ -13,6 +14,8 @@ app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/programs', programRoutes);
 app.use('/api/security-questions', securityQuestionRoutes);
+app.use('/api/exercises', exerciseRoutes);
+
 
 // Middleware to protect routes
 

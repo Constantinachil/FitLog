@@ -9,8 +9,8 @@ const ProgramExercise = require('./programExercise');
 User.belongsTo(SecurityQuestion, { foreignKey: 'securityQuestionId' });
 SecurityQuestion.hasMany(User, { foreignKey: 'securityQuestionId' });
 
-Program.belongsToMany(Exercise, { through: ProgramExercise });
-Exercise.belongsToMany(Program, { through: ProgramExercise });
+Program.belongsToMany(Exercise, { through: ProgramExercise, foreignKey: 'programId' });
+Exercise.belongsToMany(Program, { through: ProgramExercise, foreignKey: 'exerciseId' });
 
 User.hasMany(Program, { foreignKey: 'createdBy' });
 Program.belongsTo(User, { foreignKey: 'createdBy' });
