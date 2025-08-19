@@ -1,14 +1,47 @@
 import React from "react";
 import "./footer.css";
+import { FaFacebook, FaInstagram, FaTwitter, FaGithub, FaLinkedin, FaDiscord } from "react-icons/fa";
 
-export default function Footer() {
+export default function footer() {
   return (
-   <footer className="bg-light text-center text-lg-start mt-auto border-top">
-      <div className="container p-3">
-        <p className="mb-1">© {new Date().getFullYear()} FitLog. All rights reserved.</p>
-        <div>
-          <a href="/privacy" className="text-primary me-3">Privacy Policy</a>
-          <a href="/terms" className="text-primary">Terms</a>
+    <footer className="footer">
+      <div className="container footer-grid">
+        {/* Left: About */}
+        <div className="footer-section">
+          <h5>About</h5>
+          <p>FitLog is your personal fitness tracker and progress planner.</p>
+        </div>
+
+        {/* Center: Links */}
+        <div className="footer-section center-section">
+          <p>© 2025 FitLog. All rights reserved.</p>
+        </div>
+
+        {/* Right: Contact */}
+        <div className="footer-section">
+          <h5>Contact</h5>
+          <p>Email: int02620@uoi.gr</p>
+          <p>Phone: +30 698 597 2291</p>
+          <div className="social-icons">
+            <a href="https://facebook.com" target="_blank" rel="noreferrer">
+              <FaFacebook />
+            </a>
+            <a href="https://instagram.com" target="_blank" rel="noreferrer">
+              <FaInstagram />
+            </a>
+            <a href="https://twitter.com" target="_blank" rel="noreferrer">
+              <FaTwitter />
+            </a>
+            <a href="https://github.com" target="_blank" rel="noreferrer">
+              <FaGithub />
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noreferrer">
+              <FaLinkedin />
+            </a>
+            <a href="https://discord.com" target="_blank" rel="noreferrer">
+              <FaDiscord />
+            </a>
+          </div>
         </div>
       </div>
     </footer>
