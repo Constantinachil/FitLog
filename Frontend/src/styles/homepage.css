@@ -1,0 +1,10 @@
+.homepage {
+  background-image: url('../assets/bg_login.webp');
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
