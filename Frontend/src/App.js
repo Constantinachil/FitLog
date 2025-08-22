@@ -1,28 +1,85 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/header";
 import Footer from "./components/footer";
 import LoginSignUpPage from "./pages/login_signupPage";
 import ForgotPassword from "./pages/forgot_password";
-import HomePage from "./pages/homepage"; // You must create this if not already
+import HomePage from "./pages/homepage";
+import ProtectedRoute from "./components/protectedroute";
+import PublicRoute from "./components/publicroute";
+import View from "./pages/view";
+import Search from "./pages/search";
+import Calculator from "./pages/calculator";
+import Profile from "./pages/profile";
+
 
 function App() {
-  // Check login status by looking for a token
-  const isLoggedIn = localStorage.getItem("token");
-
   return (
     <Router>
       <div className="d-flex flex-column min-vh-100">
         <Header />
         <main className="flex-grow-1">
           <Routes>
-            {/* ✅ Dynamic redirect based on login */}
-            <Route path="/" element={<Navigate to={isLoggedIn ? "/homepage" : "/login"} replace />} />
+            {/* Public Only */}
+            <Route
+              path="/login"
+              element={
+                <PublicRoute>
+                  <LoginSignUpPage />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/forgot-password"
+              element={
+                <PublicRoute>
+                  <ForgotPassword />
+                </PublicRoute>
+              }
+            />
 
-            {/* Routes */}
-            <Route path="/login" element={<LoginSignUpPage />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/homepage" element={<HomePage />} />
+            {/* Protected Routes */}
+            <Route
+              path="/homepage"
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/view"
+              element={
+                <ProtectedRoute>
+                  <View />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/search"
+              element={
+                <ProtectedRoute>
+                  <Search />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/calculator"
+              element={
+                <ProtectedRoute>
+                  <Calculator />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            {/* Add more protected routes below if needed */}
           </Routes>
         </main>
         <Footer />

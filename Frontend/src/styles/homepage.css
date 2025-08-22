@@ -1,4 +1,4 @@
-.homepage {
+.home-page {
   background-image: url('../assets/bg_login.webp');
   background-size: cover;
   background-position: center;
@@ -7,4 +7,115 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.home-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(6px);
+  background-color: rgba(255, 255, 255, 0.2);
+  z-index: 1;
+}
+
+.homepage-container {
+  display: flex;
+  min-height: 100vh;
+  background: #f4f6f8;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.sidebar {
+  width: 280px;
+  background-color: #ffffff;
+  padding: 20px;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.widget {
+  background-color: #fefefe;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.widget h4 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  color: #b472d4;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 40px;
+}
+
+.dashboard-widgets {
+  display: flex;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.dashboard-card {
+  flex: 1;
+  background-color: white;
+  padding: 25px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.usage-widget {
+  text-align: center;
+}
+
+.progress-circle {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
+}
+
+.progress-circle svg {
+  width: 100px;
+  height: 100px;
+  transform: rotate(-90deg);
+}
+
+.progress-circle circle {
+  fill: none;
+  stroke-width: 10;
+  r: 45;
+  cx: 50;
+  cy: 50;
+}
+
+.progress-circle circle:first-child {
+  stroke: #ddd;
+}
+
+.progress-circle circle:last-child {
+  stroke: #b472d4;
+  stroke-linecap: round;
+  stroke-dasharray: 282;
+  stroke-dashoffset: 282;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.usage-info {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #555;
 }

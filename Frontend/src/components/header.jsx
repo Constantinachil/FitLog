@@ -9,13 +9,13 @@ export default function Header() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.location.href = "/login";
+    navigate("/login");
   };
 
   return (
     <nav className="navbar navbar-expand-lg header">
       <div className="container-fluid px-3">
-        <a className="navbar-brand d-flex align-items-center" href="/homepage">
+        <a className="navbar-brand d-flex align-items-center" href={isLoggedIn ? "/homepage" : "/login"}>
           <img src={logo} alt="Logo" className="logo" />
         </a>
 
@@ -24,52 +24,47 @@ export default function Header() {
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
         >
           <span className="navbar-toggler-icon"></span>
         </button>
 
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto">
-            <li className="nav-item">
-              <a className="nav-link" href="/homepage">Home</a>
-            </li>
-
-            <li className="nav-item dropdown">
-              <a
-                className="nav-link dropdown-toggle"
-                href="#"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                Programs
-              </a>
-              <ul className="dropdown-menu">
-                <li><a className="dropdown-item" href="/programs/view">My Programs</a></li>
-                <li><a className="dropdown-item" href="/programs/search">Our Programs</a></li>
-              </ul>
-            </li>
-
-            <li className="nav-item">
-              <a className="nav-link" href="/calculator">Calculator</a>
-            </li>
-
-            <li className="nav-item">
-              <a className="nav-link" href="/profile">Profile</a>
-            </li>
-
-            {/* Show Logout only when logged in */}
-            {isLoggedIn && (
+          {isLoggedIn && (
+            <ul className="navbar-nav ms-auto">
               <li className="nav-item">
-                <span className="nav-link" style={{ cursor: 'pointer' }} onClick={handleLogout}>
-                  Logout
-                </span>
+                <a className="nav-link" href="/homepage">Home</a>
               </li>
-            )}
-          </ul>
+
+              {/* 🔐 Protected Dropdown */}
+              <li className="nav-item dropdown">
+                <a
+                  className="nav-link dropdown-toggle"
+                  href="#"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                >
+                  Programs
+                </a>
+                <ul className="dropdown-menu">
+                  <li><a className="dropdown-item" href="/view">My Programs</a></li>
+                  <li><a className="dropdown-item" href="/search">Our Programs</a></li>
+                </ul>
+              </li>
+
+              <li className="nav-item">
+                <a className="nav-link" href="/calculator">Calculator</a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link" href="/profile">Profile</a>
+              </li>
+
+              <li className="nav-item">
+                <button className="nav-link btn btn-link" onClick={handleLogout}>
+                  Logout
+                </button>
+              </li>
+            </ul>
+          )}
         </div>
       </div>
     </nav>

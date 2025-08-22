@@ -45,7 +45,7 @@ export default function LoginSignUpPage() {
         });
         setMessage("Login successful!");
         localStorage.setItem("token", res.data.token);
-        window.location.href = "/";
+        window.location.href = "/homepage";
       } else {
         await axios.post("/api/users/register", {
           username: formData.username,
