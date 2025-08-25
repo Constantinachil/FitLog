@@ -8,5 +8,8 @@ router.get('/', protect, programController.getPrograms);
 router.get('/:id', protect, programController.getProgramById);
 router.put('/:id', protect, programController.updateProgram);
 router.delete('/:id', protect, programController.deleteProgram);
+router.post('/:id/exercises', protect, programController.addExerciseToProgram);
+router.get('/:id/details', protect, programController.getProgramWithExercises);
+
 
 module.exports = router;

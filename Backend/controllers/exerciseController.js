@@ -88,6 +88,7 @@ exports.importFromAPI = async (req, res) => {
           gifUrl: ex.gifUrl,
           bodyPart: ex.bodyPart,
           sourceId: ex.id,
+          instructions: ex.instructions ? ex.instructions.join('\n') : null
         });
         imported++;
       }

@@ -10,8 +10,11 @@ const User = sequelize.define('User', {
   },
   email: {
     type: DataTypes.STRING,
-    unique: true,
     allowNull: false,
+    unique: true,
+    set(value) {
+    this.setDataValue('email', value.toLowerCase());
+  }
   },
   password: {
     type: DataTypes.STRING,
@@ -30,6 +33,17 @@ User.beforeCreate(async (user) => {
   const salt = await bcrypt.genSalt(10);
   user.password = await bcrypt.hash(user.password, salt);
   user.securityAnswer = await bcrypt.hash(user.securityAnswer, salt);
+});
+
+User.beforeUpdate(async (user) => {
+  if (user.changed('password')) {
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(user.password, salt);
+  }
+  if (user.changed('securityAnswer')) {
+    const salt = await bcrypt.genSalt(10);
+    user.securityAnswer = await bcrypt.hash(user.securityAnswer, salt);
+  }
 });
 
 module.exports = User;

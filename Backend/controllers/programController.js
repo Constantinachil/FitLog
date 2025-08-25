@@ -1,4 +1,4 @@
-const { Program, User } = require('../models');
+const { Program, User, Exercise, ProgramExercise } = require('../models');
 
 // Create a new program
 exports.createProgram = async (req, res) => {
@@ -64,6 +64,50 @@ exports.deleteProgram = async (req, res) => {
 
     await program.destroy();
     res.json({ message: 'Program deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.addExerciseToProgram = async (req, res) => {
+  try {
+    const programId = req.params.id; // 👈 comes from the URL
+    const { exerciseId, sets, reps, duration, day, order } = req.body;
+
+    const program = await Program.findByPk(programId);
+    if (!program) return res.status(404).json({ error: 'Program not found' });
+
+    const exercise = await Exercise.findByPk(exerciseId);
+    if (!exercise) return res.status(404).json({ error: 'Exercise not found' });
+
+    await program.addExercise(exercise, {
+      through: { sets, reps, duration, day, order }
+    });
+
+    res.json({ message: 'Exercise added to program successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+exports.getProgramWithExercises = async (req, res) => {
+  try {
+    const program = await Program.findByPk(req.params.id, {
+      include: [
+        { model: User, attributes: ['id', 'username'] },
+        {
+          model: Exercise,
+          through: {
+            attributes: ['sets', 'reps', 'duration', 'day', 'order'] // join table fields
+          }
+        }
+      ]
+    });
+
+    if (!program) return res.status(404).json({ error: 'Program not found' });
+
+    res.json(program);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

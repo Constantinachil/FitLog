@@ -15,6 +15,7 @@ const Program = sequelize.define('Program', {
     allowNull: false
   }
 }, {
+  tableName: 'Programs',
   timestamps: true
 });
 
