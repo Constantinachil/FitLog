@@ -85,10 +85,13 @@ exports.importFromAPI = async (req, res) => {
           name: ex.name,
           targetMuscle: ex.target,
           equipment: ex.equipment,
-          gifUrl: ex.gifUrl,
           bodyPart: ex.bodyPart,
           sourceId: ex.id,
-          instructions: ex.instructions ? ex.instructions.join('\n') : null
+          instructions: ex.instructions ? ex.instructions.join('\n') : null,
+          description: ex.description || null,
+          difficulty: ex.difficulty || null,
+          category: ex.category || null,
+          secondaryMuscles: ex.secondaryMuscles ? ex.secondaryMuscles.join(',') : null
         });
         imported++;
       }
