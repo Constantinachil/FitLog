@@ -1,4 +1,5 @@
 const { Program, User, Exercise, ProgramExercise } = require('../models');
+const axios = require('axios');
 
 // Create a new program
 exports.createProgram = async (req, res) => {
@@ -109,6 +110,58 @@ exports.getProgramWithExercises = async (req, res) => {
 
     res.json(program);
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.addExerciseFromAPIToProgram = async (req, res) => {
+  try {
+    const programId = req.params.id; // Program ID from URL
+    const { apiExerciseId, sets, reps, duration, day, order } = req.body;
+
+    // 1. Find program
+    const program = await Program.findByPk(programId);
+    if (!program) return res.status(404).json({ error: 'Program not found' });
+
+    // 2. Check if exercise already exists in DB
+    let exercise = await Exercise.findOne({ where: { sourceId: apiExerciseId } });
+
+    // 3. If not found, import from ExerciseDB API
+    if (!exercise) {
+      const response = await axios.get(
+        `https://exercisedb.p.rapidapi.com/exercises/exercise/${apiExerciseId}`,
+        {
+          headers: {
+            'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
+            'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com',
+          },
+        }
+      );
+
+      const ex = response.data;
+
+      exercise = await Exercise.create({
+        name: ex.name,
+        targetMuscle: ex.target,
+        equipment: ex.equipment,
+        bodyPart: ex.bodyPart,
+        sourceId: ex.id,
+        instructions: ex.instructions ? ex.instructions.join('\n') : null,
+        description: ex.description || null,
+        difficulty: ex.difficulty || null,
+        category: ex.category || null,
+        secondaryMuscles: ex.secondaryMuscles ? ex.secondaryMuscles.join(',') : null,
+      });
+    }
+
+    // 4. Link to program with metadata
+    await program.addExercise(exercise, {
+      through: { sets, reps, duration, day, order }
+    });
+
+    res.json({ message: 'Exercise added to program successfully', exercise });
+  } catch (err) {
+    console.error("Error adding exercise:", err);
     res.status(500).json({ error: err.message });
   }
 };

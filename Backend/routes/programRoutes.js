@@ -10,6 +10,7 @@ router.put('/:id', protect, programController.updateProgram);
 router.delete('/:id', protect, programController.deleteProgram);
 router.post('/:id/exercises', protect, programController.addExerciseToProgram);
 router.get('/:id/details', protect, programController.getProgramWithExercises);
+router.post('/:id/exercises/addFromAPI', protect, programController.addExerciseFromAPIToProgram);
 
 
 module.exports = router;
