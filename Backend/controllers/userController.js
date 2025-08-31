@@ -89,7 +89,8 @@ exports.resetPasswordWithSecurityQuestion = async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     // Check security answer
-    const isMatch = await bcrypt.compare(securityAnswer, user.securityAnswer);
+    const normalizedInput = req.body.securityAnswer.trim().toLowerCase();
+    const isMatch = await bcrypt.compare(normalizedInput, user.securityAnswer);
     if (!isMatch) return res.status(401).json({ error: 'Incorrect answer' });
 
     // Check if new password is the same as old
@@ -109,3 +110,43 @@ exports.resetPasswordWithSecurityQuestion = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// controllers/userController.js
+exports.getProfile = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attributes: ['id', 'username', 'email', 'bio'] // no password!
+    });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// controllers/userController.js
+exports.updateProfile = async (req, res) => {
+  try {
+    const { bio, username } = req.body;
+    const user = await User.findByPk(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // ✅ allow updating bio + username
+    if (bio !== undefined) user.bio = bio;
+    if (username !== undefined) user.username = username;
+
+    await user.save();
+
+    res.json({
+      message: 'Profile updated',
+      user: { id: user.id, username: user.username, bio: user.bio }
+    });
+  } catch (err) {
+  if (err.name === 'SequelizeUniqueConstraintError') {
+    return res.status(400).json({ error: 'Username already taken' });
+  }
+  res.status(500).json({ error: err.message });
+}
+
+};
+

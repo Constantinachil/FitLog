@@ -25,14 +25,16 @@ const User = sequelize.define('User', {
     allowNull: false,
     references: { model: 'SecurityQuestions', key: 'id' }
   },
-  securityAnswer: { type: DataTypes.STRING, allowNull: false }
+  securityAnswer: { type: DataTypes.STRING, allowNull: false },
+  bio: { type: DataTypes.TEXT, allowNull: true }
 });
 
 // Hash password before saving
 User.beforeCreate(async (user) => {
   const salt = await bcrypt.genSalt(10);
   user.password = await bcrypt.hash(user.password, salt);
-  user.securityAnswer = await bcrypt.hash(user.securityAnswer, salt);
+  const normalizedAnswer = user.securityAnswer.trim().toLowerCase();
+  user.securityAnswer = await bcrypt.hash(normalizedAnswer, salt);
 });
 
 User.beforeUpdate(async (user) => {
@@ -42,7 +44,8 @@ User.beforeUpdate(async (user) => {
   }
   if (user.changed('securityAnswer')) {
     const salt = await bcrypt.genSalt(10);
-    user.securityAnswer = await bcrypt.hash(user.securityAnswer, salt);
+    const normalizedAnswer = user.securityAnswer.trim().toLowerCase();
+    user.securityAnswer = await bcrypt.hash(normalizedAnswer, salt);
   }
 });
 
