@@ -26,7 +26,10 @@ const User = sequelize.define('User', {
     references: { model: 'SecurityQuestions', key: 'id' }
   },
   securityAnswer: { type: DataTypes.STRING, allowNull: false },
-  bio: { type: DataTypes.TEXT, allowNull: true }
+  bio: { type: DataTypes.TEXT, allowNull: true },
+  lastLogin: { type: DataTypes.DATE, allowNull: true },
+  loginStreak: { type: DataTypes.INTEGER, defaultValue: 0 },
+  maxStreak: { type: DataTypes.INTEGER, defaultValue: 0 }
 });
 
 // Hash password before saving

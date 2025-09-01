@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "root",
+    "password": "1q2w1q2w",
+    "database": "fitlog_app_db",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "fitlog_test_db",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": "1q2w1q2w",
+    "database": "fitlog_prod_db",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}
