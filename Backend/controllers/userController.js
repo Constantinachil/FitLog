@@ -215,3 +215,19 @@ exports.updateProfile = async (req, res) => {
 
 };
 
+exports.getUserStreak = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attributes: ['loginStreak', 'maxStreak']
+    });
+
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    res.json({
+      streak: user.loginStreak,
+      maxStreak: user.maxStreak
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
