@@ -22,14 +22,19 @@ export function AuthProvider({ children }) {
   const [usageSeconds, setUsageSeconds] = useState(0);
   const [streak, setStreak] = useState(0);
   const [user, setUser] = useState(localStorage.getItem("username") || "Unnamed User");
+  const [maxStreak, setMaxStreak] = useState(0);
 
   // --- LOGIN ---
-  const login = (newToken, username) => {
-    saveToken(newToken);
-    localStorage.setItem("username", username);
-    setToken(newToken);
-    setUser(username);
-  };
+ const login = (newToken, userData) => {
+  saveToken(newToken);
+  localStorage.setItem("username", userData.username);
+
+  setToken(newToken);
+  setUser(userData.username);
+  setStreak(userData.streak || 0);
+  setMaxStreak(userData.maxStreak || 0);
+};
+
 
   // --- LOGOUT ---
   const logout = () => {
@@ -85,6 +90,7 @@ export function AuthProvider({ children }) {
         streak,
         user,
         updateUsername,
+        maxStreak
       }}
     >
       {children}

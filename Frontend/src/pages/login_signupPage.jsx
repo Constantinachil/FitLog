@@ -1,6 +1,8 @@
+// pages/LoginSignUpPage.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles/login_signupPage.css";
+import { useAuth } from "../components/authcontext"; // ✅ import
 
 export default function LoginSignUpPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,6 +17,8 @@ export default function LoginSignUpPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const { login } = useAuth(); // ✅ get login from AuthContext
 
   useEffect(() => {
     if (!isLogin) {
@@ -43,8 +47,13 @@ export default function LoginSignUpPage() {
           email: formData.email,
           password: formData.password,
         });
+
         setMessage("Login successful!");
-        localStorage.setItem("token", res.data.token);
+
+        // ✅ pass token + user object to AuthContext
+        login(res.data.token, res.data.user);
+
+        // redirect to homepage
         window.location.href = "/homepage";
       } else {
         await axios.post("/api/users/register", {

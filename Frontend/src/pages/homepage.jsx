@@ -5,14 +5,49 @@ import "../styles/homepage.css";
 import { useAuth } from "../components/authcontext.js";
 import StickyNotes from "../components/stickynotes.jsx";
 import StreakWidget from "../components/streakwidget.jsx";
+import {jwtDecode} from "jwt-decode";
 
 export default function HomePage() {
   const [calendarValue, setCalendarValue] = useState(new Date());
-  const { usageSeconds, user } = useAuth();
+  const { user } = useAuth();
 
-  const usagePercentage = Math.min((usageSeconds / (60 * 60)) * 100, 100);
+  // ⏱️ State for countdown
+const [timeLeft, setTimeLeft] = useState(0);
+const [percentage, setPercentage] = useState(100);
+const {logout} = useAuth();
 
-  const [greetingMessage, setGreetingMessage] = useState("");
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  try {
+    const decoded = jwtDecode(token);
+    const issuedAt = decoded.iat * 1000;
+    const expiresAt = decoded.exp * 1000;
+    const totalLifetime = expiresAt - issuedAt;
+
+    const updateTime = () => {
+      const diff = Math.max(0, expiresAt - Date.now());
+      setTimeLeft(diff);
+      setPercentage((diff / totalLifetime) * 100);
+      if (diff <= 0) {
+        clearInterval(interval); // stop ticking
+        logout();                // auto logout
+        window.location.href = "/login"; // optional redirect
+      }
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  } catch (err) {
+    console.error("Failed to decode token:", err);
+  }
+}, [logout]);
+
+const minutes = Math.floor(timeLeft / 60000);
+const seconds = Math.floor((timeLeft % 60000) / 1000);
+const [greetingMessage, setGreetingMessage] = useState("");
 
   useEffect(() => {
     const hours = new Date().getHours();
@@ -28,7 +63,6 @@ export default function HomePage() {
   return (
     <div className="home-page">
       <div className="homepage-container">
-
         <aside className="sidebar">
           <div className="widget calendar-widget">
             <h4>📅 Calendar</h4>
@@ -36,7 +70,7 @@ export default function HomePage() {
           </div>
 
           <div className="widget usage-widget">
-            <h4>⏱️ Usage Time</h4>
+            <h4>⏱️ Session Time Left</h4>
             <div className="progress-circle">
               <svg>
                 <circle cx="50" cy="50" r="45" />
@@ -45,21 +79,20 @@ export default function HomePage() {
                   cy="50"
                   r="45"
                   style={{
-                    strokeDashoffset: 282 - usagePercentage * 2.82,
+                    strokeDashoffset: 282 - percentage * 2.82,
                   }}
                 />
               </svg>
               <div className="progress-text">
-                {usagePercentage.toFixed(1)}%
+                {minutes}:{seconds.toString().padStart(2, "0")}
               </div>
             </div>
             <p className="usage-info">
-              You’ve been active for {(usageSeconds / 60).toFixed(1)} mins
+              
             </p>
           </div>
-          
-            <StickyNotes />
 
+          <StickyNotes />
         </aside>
 
         <div className="center-content">
