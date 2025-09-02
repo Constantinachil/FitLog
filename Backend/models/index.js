@@ -6,6 +6,8 @@ const Program = require('./program');
 const ProgramExercise = require('./programExercise');
 const Achievement = require('./achievement');
 const UserAchievement = require('./userAchievement');
+const StickyNote = require('./stickyNote');
+
 
 // Define associations if any
 User.belongsTo(SecurityQuestion, { foreignKey: 'securityQuestionId' });
@@ -20,10 +22,14 @@ Program.belongsTo(User, { foreignKey: 'createdBy' });
 User.belongsToMany(Achievement, { through: UserAchievement, foreignKey: 'userId' });
 Achievement.belongsToMany(User, { through: UserAchievement, foreignKey: 'achievementId' });
 
+User.hasMany(StickyNote, { foreignKey: 'userId' });
+StickyNote.belongsTo(User, { foreignKey: 'userId' });
+
+
 sequelize.authenticate()
   .then(() => console.log('Database connected'))
   .catch(err => console.error(err));
 
  // Creates tables if not exist
 
-module.exports = { sequelize, User, SecurityQuestion , Program, Exercise, ProgramExercise, Achievement, UserAchievement };
+module.exports = { sequelize, User, SecurityQuestion , Program, Exercise, ProgramExercise, Achievement, UserAchievement, StickyNote };

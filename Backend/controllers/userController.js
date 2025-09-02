@@ -70,11 +70,14 @@ exports.loginUser = async (req, res) => {
     // 🏆 --- LOGIN STREAK LOGIC ---
     console.log("➡️ Updating streak...");
     const now = new Date();
+    const today = new Date(now.toDateString()); // strip time
     let streak = user.loginStreak || 0;
 
     if (user.lastLogin) {
       const lastLoginDate = new Date(user.lastLogin);
-      const diffDays = Math.floor((now - lastLoginDate) / (1000 * 60 * 60 * 24));
+      const lastLoginDay = new Date(lastLoginDate.toDateString()); // strip time
+
+      const diffDays = Math.floor((today - lastLoginDay) / (1000 * 60 * 60 * 24));
 
       if (diffDays === 1) {
         streak += 1; // consecutive day
