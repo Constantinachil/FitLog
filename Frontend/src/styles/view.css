@@ -1,0 +1,163 @@
+.programs-page {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f3e5f5, #ede7f6);
+  font-family: 'Segoe UI', sans-serif;
+  padding: 40px 20px;
+}
+
+.programs-container {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 600px;
+}
+
+.programs-title {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #6a1b9a;
+  margin-bottom: 20px;
+}
+
+.program-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.program-form input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 2px solid #b39ddb;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: 0.2s;
+}
+
+.program-form input:focus {
+  border-color: #6a1b9a;
+  box-shadow: 0 0 5px rgba(106, 27, 154, 0.4);
+}
+
+.program-form button {
+  background: #6a1b9a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.program-form button:hover {
+  background: #8e24aa;
+}
+
+.programs-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.program-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f5fc;
+  border: 1px solid #e1bee7;
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.program-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.program-item span {
+  font-size: 1rem;
+  color: #333;
+  flex-grow: 1;
+}
+
+.actions {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  margin-left: 20px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.actions button {
+  display: none;         
+  border: none;
+  border-radius: 50%;  
+  width: 34px;
+  height: 34px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: white;
+  text-align: center;
+  line-height: 34px;   
+  padding: 0;
+}
+
+.program-item:hover .actions button {
+  display: inline-block;
+}
+
+.edit-btn {
+  background: #1976d2;
+}
+.edit-btn:hover {
+  background: #1565c0;
+}
+
+.delete-btn {
+  background: #c62828;
+}
+.delete-btn:hover {
+  background: #b71c1c;
+}
+
+.save-btn {
+  background: #1976d2;
+}
+.save-btn:hover {
+  background: #1565c0;
+}
+
+.cancel-btn {
+  background: #c62828;
+}
+.cancel-btn:hover {
+  background: #b71c1c;
+}
+
+.edit-input {
+  flex: 1;
+  padding: 8px;
+  border: 2px solid #9c27b0;
+  border-radius: 10px;
+  font-size: 1rem;
+  outline: none;
+  margin-right: 8px;
+}
+
+.empty-msg {
+  text-align: center;
+  font-size: 1rem;
+  color: #777;
+  margin-top: 20px;
+}

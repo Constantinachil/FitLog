@@ -8,6 +8,8 @@ export default function ProgramsPage() {
   });
 
   const [newProgram, setNewProgram] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editedName, setEditedName] = useState("");
 
   useEffect(() => {
     localStorage.setItem("programs", JSON.stringify(programs));
@@ -23,6 +25,21 @@ export default function ProgramsPage() {
 
   const deleteProgram = (id) => {
     setPrograms(programs.filter((p) => p.id !== id));
+  };
+
+  const startEditing = (program) => {
+    setEditingId(program.id);
+    setEditedName(program.name);
+  };
+
+  const saveEdit = (id) => {
+    setPrograms(
+      programs.map((p) =>
+        p.id === id ? { ...p, name: editedName } : p
+      )
+    );
+    setEditingId(null);
+    setEditedName("");
   };
 
   return (
@@ -47,13 +64,37 @@ export default function ProgramsPage() {
             <ul>
               {programs.map((program) => (
                 <li key={program.id} className="program-item">
-                  <span>{program.name}</span>
-                  <button
-                    className="delete-btn"
-                    onClick={() => deleteProgram(program.id)}
-                  >
-                    ✕
-                  </button>
+                  {editingId === program.id ? (
+                    <>
+                      <input
+                        type="text"
+                        value={editedName}
+                        onChange={(e) => setEditedName(e.target.value)}
+                        className="edit-input"
+                      />
+                      <button
+                        className="save-btn"
+                        onClick={() => saveEdit(program.id)}
+                      >
+                        💾
+                      </button>
+                      <button
+                        className="cancel-btn"
+                        onClick={() => setEditingId(null)}
+                      >
+                        ❌
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <span>{program.name}</span>
+                      <div className="actions">
+                        <button className="edit-btn" onClick={() => startEditing(program)}> ✎ </button>
+
+                        <button className="delete-btn" onClick={() => deleteProgram(program.id)}> ✕ </button>
+                      </div>
+                    </>
+                  )}
                 </li>
               ))}
             </ul>

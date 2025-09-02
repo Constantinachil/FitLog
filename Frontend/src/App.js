@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Header from "./components/header";
 import Footer from "./components/footer";
 import LoginSignUpPage from "./pages/login_signupPage";
@@ -25,7 +25,6 @@ function AppRoutes() {
         }
       />
 
-      {/* Public */}
       <Route
         path="/login"
         element={
@@ -43,7 +42,6 @@ function AppRoutes() {
         }
       />
 
-      {/* Protected */}
       <Route
         path="/homepage"
         element={
@@ -88,17 +86,28 @@ function AppRoutes() {
   );
 }
 
+function Layout({ children }) {
+  const { isLoggedIn } = useAuth();
+  const location = useLocation();
+
+  const hideHeaderFooter = ["/login", "/forgot-password"].includes(location.pathname);
+
+  return (
+    <div className="d-flex flex-column min-vh-100">
+      {!hideHeaderFooter && isLoggedIn && <Header />}
+      <main className="flex-grow-1">{children}</main>
+      {!hideHeaderFooter && isLoggedIn && <Footer />}
+    </div>
+  );
+}
+
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="d-flex flex-column min-vh-100">
-          <Header />
-          <main className="flex-grow-1">
-            <AppRoutes />
-          </main>
-          <Footer />
-        </div>
+        <Layout>
+          <AppRoutes />
+        </Layout>
       </AuthProvider>
     </Router>
   );

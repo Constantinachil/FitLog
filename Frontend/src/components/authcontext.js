@@ -1,27 +1,52 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import {
+  getToken,
+  setToken as saveToken,
+  clearToken,
+  isTokenExpired,
+} from "../components/auth";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [token, setToken] = useState(() => {
+    const stored = getToken();
+    if (stored && !isTokenExpired(stored)) {
+      return stored;
+    } else {
+      clearToken();
+      return null;
+    }
+  });
+
   const [usageSeconds, setUsageSeconds] = useState(0);
   const [streak, setStreak] = useState(0);
-  const [user, setUser] = useState(localStorage.getItem("username") || "");
+  const [user, setUser] = useState(localStorage.getItem("username") || "Unnamed User");
 
+  // --- LOGIN ---
   const login = (newToken, username) => {
-    localStorage.setItem("token", newToken);
+    saveToken(newToken);
     localStorage.setItem("username", username);
     setToken(newToken);
     setUser(username);
   };
 
+  // --- LOGOUT ---
   const logout = () => {
-    localStorage.removeItem("token");
+    clearToken();
+    localStorage.removeItem("username");
     setToken(null);
+    setUser("Unnamed User");
     setUsageSeconds(0);
   };
 
-  // ✅ Handle streak logic only once on mount
+  // --- UPDATE USERNAME ---
+  const updateUsername = (newUsername) => {
+    setUser(newUsername);
+    localStorage.setItem("username", newUsername);
+  };
+
+  // --- STREAK LOGIC ---
   useEffect(() => {
     const today = new Date().toDateString();
     const lastLogin = localStorage.getItem("lastLogin");
@@ -56,9 +81,10 @@ export function AuthProvider({ children }) {
         login,
         logout,
         usageSeconds,
+        setUsageSeconds,
         streak,
         user,
-        setUsageSeconds,
+        updateUsername,
       }}
     >
       {children}

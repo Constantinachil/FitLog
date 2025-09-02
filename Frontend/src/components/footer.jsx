@@ -6,18 +6,15 @@ export default function footer() {
   return (
     <footer className="footer">
       <div className="container footer-grid">
-        {/* Left: About */}
         <div className="footer-section">
           <h5>About</h5>
           <p>FitLog is your personal fitness tracker and progress planner.</p>
         </div>
 
-        {/* Center: Links */}
         <div className="footer-section center-section">
           <p>© 2025 FitLog. All rights reserved.</p>
         </div>
 
-        {/* Right: Contact */}
         <div className="footer-section">
           <h5>Contact</h5>
           <p>Email: int02620@uoi.gr</p>
