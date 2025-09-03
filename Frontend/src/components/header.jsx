@@ -56,7 +56,7 @@ export default function Header() {
                   </Link>
                 </li>
                 <li>
-                  <Link className="dropdown-item" to="/search">
+                  <Link className="dropdown-item" to="/default-programs">
                     Our Programs
                   </Link>
                 </li>

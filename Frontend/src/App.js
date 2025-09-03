@@ -8,9 +8,10 @@ import HomePage from "./pages/homepage";
 import ProtectedRoute from "./components/protectedroute";
 import PublicRoute from "./components/publicroute";
 import View from "./pages/view";
-import Search from "./pages/search";
 import Calculator from "./pages/calculator";
 import Profile from "./pages/profile";
+import DefaultProgramsPage from "./pages/DefaultProgramsPage";
+import DefaultProgramDetailPage from "./pages/DefaultProgramDetailPage";
 import { AuthProvider, useAuth } from "./components/authcontext.js";
 
 function AppRoutes() {
@@ -59,10 +60,18 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/search"
+        path="/default-programs"
         element={
           <ProtectedRoute>
-            <Search />
+            <DefaultProgramsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/default-programs/:id"
+        element={
+          <ProtectedRoute>
+            <DefaultProgramDetailPage />
           </ProtectedRoute>
         }
       />

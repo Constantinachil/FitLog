@@ -1,0 +1,24 @@
+.program-detail-page {
+  padding: 20px;
+}
+
+.exercise-card {
+  margin: 15px 0;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  list-style: none;
+}
+
+.exercise-card h4 {
+  margin-bottom: 10px;
+}
+
+.exercise-card ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.exercise-card li {
+  margin: 4px 0;
+}
