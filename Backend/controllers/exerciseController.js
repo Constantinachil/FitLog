@@ -63,19 +63,52 @@ exports.deleteExercise = async (req, res) => {
 
 exports.importFromAPI = async (req, res) => {
   try {
-    const { bodyPart } = req.query; // optional filter
-    const apiUrl = bodyPart
-      ? `https://exercisedb.p.rapidapi.com/exercises/bodyPart/${bodyPart}`
-      : `https://exercisedb.p.rapidapi.com/exercises`;
+    const { bodyPart, name, nameExact, equipment } = req.query;
+
+    let apiUrl;
+
+    if (name) {
+      apiUrl = `https://exercisedb.p.rapidapi.com/exercises/name/${encodeURIComponent(
+        name
+      )}`;
+    } else if (bodyPart) {
+      apiUrl = `https://exercisedb.p.rapidapi.com/exercises/bodyPart/${bodyPart}`;
+    } else if (equipment) {
+      apiUrl = `https://exercisedb.p.rapidapi.com/exercises/equipment/${encodeURIComponent(
+        equipment
+      )}`;
+    } else {
+      apiUrl = `https://exercisedb.p.rapidapi.com/exercises`;
+    }
+
+    console.log("➡️ Fetching from API:", apiUrl);
 
     const response = await axios.get(apiUrl, {
       headers: {
-        'x-rapidapi-key': process.env.RAPIDAPI_KEY,
-        'x-rapidapi-host': 'exercisedb.p.rapidapi.com',
+        "x-rapidapi-key": process.env.RAPIDAPI_KEY,
+        "x-rapidapi-host": "exercisedb.p.rapidapi.com",
       },
     });
 
-    const exercises = response.data;
+    let exercises = Array.isArray(response.data)
+      ? response.data
+      : [response.data];
+
+    console.log("➡️ API returned:", exercises.length, "results");
+
+    // 🔍 Filter if exact match requested
+    if (name && nameExact === "true") {
+      exercises = exercises.filter(
+        (ex) => ex.name.toLowerCase() === name.toLowerCase()
+      );
+      console.log("➡️ Exact match filtering applied:", exercises.length, "left");
+    }
+
+    if (!exercises.length) {
+      return res
+        .status(404)
+        .json({ error: "No exercises found with the given criteria" });
+    }
 
     let imported = 0;
     for (let ex of exercises) {
@@ -87,18 +120,25 @@ exports.importFromAPI = async (req, res) => {
           equipment: ex.equipment,
           bodyPart: ex.bodyPart,
           sourceId: ex.id,
-          instructions: ex.instructions ? ex.instructions.join('\n') : null,
+          instructions: ex.instructions ? ex.instructions.join("\n") : null,
           description: ex.description || null,
           difficulty: ex.difficulty || null,
           category: ex.category || null,
-          secondaryMuscles: ex.secondaryMuscles ? ex.secondaryMuscles.join(',') : null
+          secondaryMuscles: ex.secondaryMuscles
+            ? ex.secondaryMuscles.join(",")
+            : null,
         });
         imported++;
       }
     }
 
-    res.json({ message: `Imported ${imported} new exercises` });
+    res.json({
+      message: `Imported ${imported} new exercises`,
+      count: exercises.length,
+      exercises: exercises.map((e) => e.name),
+    });
   } catch (err) {
+    console.error("🔥 Error in importFromAPI:", err.response?.data || err.message);
     res.status(500).json({ error: err.message });
   }
 };

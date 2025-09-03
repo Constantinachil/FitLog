@@ -6,6 +6,7 @@ const securityQuestionRoutes = require('./routes/securityQuestionRoutes');
 const programRoutes = require('./routes/programRoutes');
 const exerciseRoutes = require('./routes/exerciseRoutes');
 const stickyNoteRoutes = require("./routes/stickyNoteRoutes");
+const defaultProgramRoutes = require("./routes/defaultProgramRoutes");
 
 dotenv.config();
 const app = express();
@@ -17,6 +18,8 @@ app.use('/api/programs', programRoutes);
 app.use('/api/security-questions', securityQuestionRoutes);
 app.use('/api/exercises', exerciseRoutes);
 app.use("/api/stickynotes", stickyNoteRoutes);
+app.use("/api/default-programs", defaultProgramRoutes);
+
 
 
 // Middleware to protect routes
