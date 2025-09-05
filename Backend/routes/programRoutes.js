@@ -5,12 +5,13 @@ const protect = require('../middlewares/authMiddleware'); // JWT auth middleware
 
 router.post('/', protect, programController.createProgram);
 router.get('/', protect, programController.getPrograms);
+router.delete('/:id/exercises', protect, programController.removeExerciseFromProgram);
 router.get('/:id', protect, programController.getProgramById);
 router.put('/:id', protect, programController.updateProgram);
 router.delete('/:id', protect, programController.deleteProgram);
 router.post('/:id/exercises', protect, programController.addExerciseToProgram);
 router.get('/:id/details', protect, programController.getProgramWithExercises);
-router.post('/:id/exercises/addFromAPI', protect, programController.addExerciseFromAPIToProgram);
+
 
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const cors = require('cors');   // 👈 add this
 const { sequelize } = require('./models');
 const userRoutes = require('./routes/userRoutes');
 const securityQuestionRoutes = require('./routes/securityQuestionRoutes');
@@ -12,7 +13,15 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.use(cors({
+  origin: "http://localhost:3000", // React dev server
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"], // needed for JWT
+}));
+
 app.use(express.json());
+
+// Routes
 app.use('/api/users', userRoutes);
 app.use('/api/programs', programRoutes);
 app.use('/api/security-questions', securityQuestionRoutes);
@@ -20,10 +29,7 @@ app.use('/api/exercises', exerciseRoutes);
 app.use("/api/stickynotes", stickyNoteRoutes);
 app.use("/api/default-programs", defaultProgramRoutes);
 
-
-
-// Middleware to protect routes
-
+// DB + Server
 sequelize.authenticate()
   .then(() => {
     console.log('MySQL connected');
@@ -34,4 +40,3 @@ sequelize.authenticate()
   .catch((err) => {
     console.error('Unable to connect to DB:', err);
   });
-// server.js
