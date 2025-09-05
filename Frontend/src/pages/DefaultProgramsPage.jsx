@@ -18,7 +18,6 @@ export default function DefaultProgramsPage() {
     fetchPrograms();
   }, []);
 
-  // Group programs by difficulty
   const groupedPrograms = programs.reduce((groups, program) => {
     const { difficulty } = program;
     if (!groups[difficulty]) groups[difficulty] = [];

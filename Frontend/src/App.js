@@ -13,6 +13,7 @@ import Profile from "./pages/profile";
 import DefaultProgramsPage from "./pages/DefaultProgramsPage";
 import DefaultProgramDetailPage from "./pages/DefaultProgramDetailPage";
 import { AuthProvider, useAuth } from "./components/authcontext.js";
+import ProgramDetailPage from "./pages/programdetailpage";
 
 function AppRoutes() {
   const { isLoggedIn } = useAuth();
@@ -56,6 +57,13 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <View />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/programs/:id"
+        element={
+          <ProtectedRoute>
+            <ProgramDetailPage />
           </ProtectedRoute>
         }
       />
