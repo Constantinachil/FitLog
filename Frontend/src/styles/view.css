@@ -4,6 +4,12 @@
   min-height: 100vh;
 }
 
+.program-description {
+  word-wrap: break-word;     
+  overflow-wrap: break-word;
+  white-space: normal;     
+}
+
 .content {
   flex: 1;
   padding: 20px;
@@ -13,7 +19,7 @@
 
 h2 {
   margin-bottom: 15px;
-  color: var(--primary-color, #2a4d69);
+  color: var(--primary-color, #6a1b9a);
 }
 
 .program-form {
@@ -30,7 +36,7 @@ h2 {
 }
 
 .program-form button {
-  background-color: var(--primary-color, #2a4d69);
+  background-color: var(--primary-color, #6a1b9a);
   color: #fff;
   border: none;
   padding: 8px 14px;
@@ -53,7 +59,7 @@ h2 {
 
 .program-card h3 {
   margin: 0 0 10px;
-  color: var(--primary-color, #2a4d69);
+  color: var(--primary-color, #6a1b9a);
 }
 
 .program-link {
@@ -68,10 +74,97 @@ h2 {
 }
 
 .program-actions button {
+  background-color: var(--secondary-color, #6a1b9a);
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.page-title {
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--primary-color, #6a1b9a);
+  text-align: center; 
+}
+.edit-program {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.edit-program input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.edit-program button {
+  background-color: var(--secondary-color, #5a2d7a);
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: fit-content;
+}
+
+.edit-program button:hover {
+  background-color: #5a2d7ac8; 
+}
+
+.edit-program button:last-child {
+  background-color: #d84e4e; 
+}
+
+.edit-program button:last-child:hover {
+  background-color: #e47575;
+}
+
+.program-form textarea,
+.edit-program textarea {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  resize: vertical; /* allow user to resize height */
+  font-family: inherit;
+}
+
+.program-description {
+  margin-top: 8px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+.edit-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.edit-buttons button {
   background-color: var(--secondary-color, #4b86b4);
   color: #fff;
   border: none;
   padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.edit-buttons button:hover {
+  background-color: #365f7d;
+}
+
+.edit-buttons button:last-child {
+  background-color: #888;
+}
+
+.edit-buttons button:last-child:hover {
+  background-color: #666;
 }

@@ -3,6 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../api";
 import "../styles/programdetailpage.css";
 
+// 🔔 Toastify
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function ProgramDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -34,7 +38,6 @@ export default function ProgramDetailPage() {
 
   const [showAddExercise, setShowAddExercise] = useState(false);
 
-  // Fetch program details
   useEffect(() => {
     const fetchProgram = async () => {
       try {
@@ -58,7 +61,6 @@ export default function ProgramDetailPage() {
     fetchProgram();
   }, [id]);
 
-  // Search from ExerciseDB and import
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
     try {
@@ -85,7 +87,6 @@ export default function ProgramDetailPage() {
     }
   };
 
-  // Add exercise to program
   const addExerciseToProgram = async (exercise) => {
     try {
       const payload = exercise.id
@@ -101,7 +102,14 @@ export default function ProgramDetailPage() {
         order: exercise.order || null,
       });
 
-      let addedExercise = res.data;
+      // 🎉 Achievement toast (for imported exercises too)
+      if (res.data.achievementsUnlocked?.length > 0) {
+        res.data.achievementsUnlocked.forEach((ach) => {
+          toast.success(`🎉 Achievement unlocked: ${ach}`);
+        });
+      }
+
+      let addedExercise = res.data.exercise || res.data;
       if (addedExercise.Programs && addedExercise.Programs.length > 0) {
         addedExercise = {
           ...addedExercise,
@@ -123,29 +131,36 @@ export default function ProgramDetailPage() {
       setPickedExerciseIndex(null);
     } catch (err) {
       console.error("Failed to add exercise:", err.response?.data || err.message);
+      toast.error("❌ Failed to add exercise");
     }
   };
 
-  // Remove exercise
   const removeExerciseFromProgram = async (exerciseId) => {
     try {
       await api.delete(`/programs/${id}/exercises`, { data: { exerciseId } });
       setExercises(exercises.filter((ex) => ex.id !== exerciseId));
     } catch (err) {
       console.error("Failed to remove exercise:", err.response?.data || err.message);
+      toast.error("❌ Failed to remove exercise");
     }
   };
 
-  // Create custom exercise
   const createCustomExercise = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post(`/exercises/custom`, {
+      const res = await api.post(`/exercises`, {
         ...newExercise,
         programId: id,
       });
 
-      let addedExercise = res.data;
+      // 🎉 Achievement toast (manual exercises)
+      if (res.data.achievementsUnlocked?.length > 0) {
+        res.data.achievementsUnlocked.forEach((ach) => {
+          toast.success(`🎉 Achievement unlocked: ${ach}`);
+        });
+      }
+
+      let addedExercise = res.data.exercise || res.data;
       if (addedExercise.Programs && addedExercise.Programs.length > 0) {
         addedExercise = {
           ...addedExercise,
@@ -183,13 +198,14 @@ export default function ProgramDetailPage() {
       });
     } catch (err) {
       console.error("Failed to create custom exercise:", err.response?.data || err.message);
+      toast.error("❌ Failed to create custom exercise");
     }
   };
 
   if (!program) return <p>Loading program...</p>;
 
   const groupedExercises = exercises.reduce((acc, ex) => {
-    const day = ex.ProgramExercise?.day || 0;
+    const day = ex.ProgramExercise?.day || 1;
     if (!acc[day]) acc[day] = [];
     acc[day].push(ex);
     return acc;
@@ -204,7 +220,7 @@ export default function ProgramDetailPage() {
       <h2>{program.name}</h2>
       <p>{program.description}</p>
 
-      {/* Add Exercise Section on Top */}
+      {/* Toggle Add Exercise */}
       <button
         className="toggle-add-exercise"
         onClick={() => setShowAddExercise(!showAddExercise)}
@@ -214,33 +230,41 @@ export default function ProgramDetailPage() {
 
       {showAddExercise && (
         <div className="exercise-options">
-          <h3>Search & Add Exercise</h3>
-          <div className="search-section">
-            <input
-              type="text"
-              placeholder="Search exercises..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <select
-              value={searchFilter}
-              onChange={(e) => setSearchFilter(e.target.value)}
-            >
-              <option value="name">Name</option>
-              <option value="equipment">Equipment</option>
-              <option value="bodyPart">Body Part</option>
-            </select>
-            <button onClick={handleSearch}>Search</button>
+          {/* Search Section */}
+          <div className="search-card">
+            <h3>🔍 Search & Add Exercise</h3>
+            <div className="search-controls">
+              <input
+                type="text"
+                placeholder="Search exercises..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <select
+                value={searchFilter}
+                onChange={(e) => setSearchFilter(e.target.value)}
+              >
+                <option value="name">Name</option>
+                <option value="equipment">Equipment</option>
+                <option value="bodyPart">Body Part</option>
+              </select>
+              <button onClick={handleSearch}>Search</button>
+            </div>
 
-            <ul>
+            <ul className="search-results">
               {noResults ? (
-                <p className="no-results">No exercises found for your search and filter.</p>
+                <p className="no-results">No exercises found for your search.</p>
               ) : (
                 searchResults.map((result, idx) => (
-                  <li key={result.id || `search-${idx}`}>
-                    <strong>{result.name}</strong>
+                  <li
+                    key={result.id ? `exercise-${result.id}` : `search-${idx}`}
+                    className="search-result-item"
+                  >
+                    <span>
+                      <strong>{result.name}</strong>
+                    </span>
                     {pickedExerciseIndex === idx ? (
-                      <>
+                      <div className="pick-form">
                         <input
                           type="number"
                           placeholder="Sets"
@@ -301,107 +325,125 @@ export default function ProgramDetailPage() {
                             )
                           }
                         />
-                        <button onClick={() => addExerciseToProgram(result)}>Add</button>
-                        <button onClick={() => setPickedExerciseIndex(null)}>Cancel</button>
-                      </>
+                        <div className="pick-buttons">
+                          <button onClick={() => addExerciseToProgram(result)}>Add</button>
+                          <button onClick={() => setPickedExerciseIndex(null)}>Cancel</button>
+                        </div>
+                      </div>
                     ) : (
-                      <button onClick={() => setPickedExerciseIndex(idx)}>Pick</button>
+                      <button
+                        className="pick-btn"
+                        onClick={() => setPickedExerciseIndex(idx)}
+                      >
+                        Pick
+                      </button>
                     )}
                   </li>
                 ))
               )}
             </ul>
+            <ToastContainer position="top-right" autoClose={3000} />
           </div>
 
-          <h3>Create Custom Exercise</h3>
-          <form onSubmit={createCustomExercise} className="custom-form">
-            <input
-              type="text"
-              placeholder="Exercise name"
-              value={newExercise.name}
-              onChange={(e) => setNewExercise({ ...newExercise, name: e.target.value })}
-              required
-            />
-            <textarea
-              placeholder="Exercise description"
-              value={newExercise.description}
-              onChange={(e) => setNewExercise({ ...newExercise, description: e.target.value })}
-            />
-            <textarea
-              placeholder="Instructions"
-              value={newExercise.instructions}
-              onChange={(e) => setNewExercise({ ...newExercise, instructions: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Difficulty"
-              value={newExercise.difficulty}
-              onChange={(e) => setNewExercise({ ...newExercise, difficulty: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Category"
-              value={newExercise.category}
-              onChange={(e) => setNewExercise({ ...newExercise, category: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Body Part"
-              value={newExercise.bodyPart}
-              onChange={(e) => setNewExercise({ ...newExercise, bodyPart: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Target Muscle"
-              value={newExercise.targetMuscle}
-              onChange={(e) => setNewExercise({ ...newExercise, targetMuscle: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Equipment"
-              value={newExercise.equipment}
-              onChange={(e) => setNewExercise({ ...newExercise, equipment: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Secondary Muscles"
-              value={newExercise.secondaryMuscles}
-              onChange={(e) => setNewExercise({ ...newExercise, secondaryMuscles: e.target.value })}
-            />
+          {/* Custom Exercise Section */}
+          <div className="custom-card">
+            <h3>➕ Create Custom Exercise</h3>
+            <form onSubmit={createCustomExercise} className="custom-form">
+              <input
+                type="text"
+                placeholder="Exercise name"
+                value={newExercise.name}
+                onChange={(e) => setNewExercise({ ...newExercise, name: e.target.value })}
+                required
+              />
+              <textarea
+                placeholder="Exercise description"
+                rows={3}
+                value={newExercise.description}
+                onChange={(e) => setNewExercise({ ...newExercise, description: e.target.value })}
+              />
+              <textarea
+                placeholder="Instructions"
+                rows={3}
+                value={newExercise.instructions}
+                onChange={(e) => setNewExercise({ ...newExercise, instructions: e.target.value })}
+              />
 
-            <input
-              type="number"
-              placeholder="Sets"
-              value={newExercise.sets}
-              onChange={(e) => setNewExercise({ ...newExercise, sets: e.target.value })}
-            />
-            <input
-              type="number"
-              placeholder="Reps"
-              value={newExercise.reps}
-              onChange={(e) => setNewExercise({ ...newExercise, reps: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Duration"
-              value={newExercise.duration}
-              onChange={(e) => setNewExercise({ ...newExercise, duration: e.target.value })}
-            />
-            <input
-              type="number"
-              placeholder="Day"
-              value={newExercise.day}
-              onChange={(e) => setNewExercise({ ...newExercise, day: e.target.value })}
-            />
-            <input
-              type="number"
-              placeholder="Order"
-              value={newExercise.order}
-              onChange={(e) => setNewExercise({ ...newExercise, order: e.target.value })}
-            />
+              <div className="custom-grid">
+                <input
+                  type="text"
+                  placeholder="Difficulty"
+                  value={newExercise.difficulty}
+                  onChange={(e) => setNewExercise({ ...newExercise, difficulty: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Category"
+                  value={newExercise.category}
+                  onChange={(e) => setNewExercise({ ...newExercise, category: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Body Part"
+                  value={newExercise.bodyPart}
+                  onChange={(e) => setNewExercise({ ...newExercise, bodyPart: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Target Muscle"
+                  value={newExercise.targetMuscle}
+                  onChange={(e) => setNewExercise({ ...newExercise, targetMuscle: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Equipment"
+                  value={newExercise.equipment}
+                  onChange={(e) => setNewExercise({ ...newExercise, equipment: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Secondary Muscles"
+                  value={newExercise.secondaryMuscles}
+                  onChange={(e) => setNewExercise({ ...newExercise, secondaryMuscles: e.target.value })}
+                />
+              </div>
 
-            <button type="submit">Create Exercise</button>
-          </form>
+              <div className="custom-grid">
+                <input
+                  type="number"
+                  placeholder="Sets"
+                  value={newExercise.sets}
+                  onChange={(e) => setNewExercise({ ...newExercise, sets: e.target.value })}
+                />
+                <input
+                  type="number"
+                  placeholder="Reps"
+                  value={newExercise.reps}
+                  onChange={(e) => setNewExercise({ ...newExercise, reps: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Duration"
+                  value={newExercise.duration}
+                  onChange={(e) => setNewExercise({ ...newExercise, duration: e.target.value })}
+                />
+                <input
+                  type="number"
+                  placeholder="Day"
+                  value={newExercise.day}
+                  onChange={(e) => setNewExercise({ ...newExercise, day: e.target.value })}
+                />
+                <input
+                  type="number"
+                  placeholder="Order"
+                  value={newExercise.order}
+                  onChange={(e) => setNewExercise({ ...newExercise, order: e.target.value })}
+                />
+              </div>
+
+              <button type="submit" className="create-btn">Create Exercise</button>
+            </form>
+          </div>
         </div>
       )}
 

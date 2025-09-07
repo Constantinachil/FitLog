@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import api from "../api"; // <-- our Axios instance with token
+import api from "../api";
 import "../styles/view.css";
 
-export default function ProgramsPage() {
+// ✅ Toastify imports
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+export default function View() {
+  console.log("✅ View.jsx rendered");
   const [programs, setPrograms] = useState([]);
   const [newProgram, setNewProgram] = useState("");
   const [newDescription, setNewDescription] = useState("");
@@ -11,7 +16,7 @@ export default function ProgramsPage() {
   const [editedProgramName, setEditedProgramName] = useState("");
   const [editedProgramDescription, setEditedProgramDescription] = useState("");
 
-  // Fetch programs from backend
+  // Fetch all programs on load
   useEffect(() => {
     const fetchPrograms = async () => {
       try {
@@ -27,7 +32,7 @@ export default function ProgramsPage() {
     fetchPrograms();
   }, []);
 
-  // Add program
+  // Add a program
   const addProgram = async (e) => {
     e.preventDefault();
     if (!newProgram.trim()) return;
@@ -37,18 +42,25 @@ export default function ProgramsPage() {
         name: newProgram,
         description: newDescription,
       });
-      setPrograms([...programs, res.data]);
+
+      // ✅ use res.data.program not res.data
+      setPrograms([...programs, res.data.program]);
+
       setNewProgram("");
       setNewDescription("");
+
+      // ✅ Show achievement notifications
+      if (res.data.achievementsUnlocked?.length > 0) {
+        res.data.achievementsUnlocked.forEach((ach) =>
+          toast.success(`🏆 Achievement unlocked: ${ach}!`)
+        );
+      }
     } catch (err) {
-      console.error(
-        "Error adding program:",
-        err.response?.data || err.message
-      );
+      console.error("Error adding program:", err.response?.data || err.message);
     }
   };
 
-  // Delete program
+  // Delete a program
   const deleteProgram = async (id) => {
     try {
       await api.delete(`/programs/${id}`);
@@ -61,22 +73,24 @@ export default function ProgramsPage() {
     }
   };
 
-  // Edit helpers
+  // Start editing
   const startEditProgram = (program) => {
     setEditingProgramId(program.id);
     setEditedProgramName(program.name);
     setEditedProgramDescription(program.description || "");
   };
 
+  // Save edit
   const saveEditProgram = async (id) => {
     try {
       const res = await api.put(`/programs/${id}`, {
         name: editedProgramName,
         description: editedProgramDescription,
       });
-      setPrograms(
-        programs.map((p) => (p.id === id ? res.data.program : p))
-      );
+
+      // ✅ use res.data.program consistently
+      setPrograms(programs.map((p) => (p.id === id ? res.data.program : p)));
+
       setEditingProgramId(null);
       setEditedProgramName("");
       setEditedProgramDescription("");
@@ -91,9 +105,8 @@ export default function ProgramsPage() {
   return (
     <div className="programs-page">
       <div className="content">
-        <h2>Programs</h2>
+        <h1 className="page-title">Programs</h1>
 
-        {/* Add Program Form */}
         <form onSubmit={addProgram} className="program-form">
           <input
             type="text"
@@ -101,16 +114,15 @@ export default function ProgramsPage() {
             value={newProgram}
             onChange={(e) => setNewProgram(e.target.value)}
           />
-          <input
-            type="text"
+          <textarea
             placeholder="Program Description"
             value={newDescription}
             onChange={(e) => setNewDescription(e.target.value)}
+            rows={3}
           />
           <button type="submit">Add Program</button>
         </form>
 
-        {/* Program List */}
         <div className="program-list">
           {programs.map((program) => (
             <div key={program.id} className="program-card">
@@ -121,29 +133,29 @@ export default function ProgramsPage() {
                     value={editedProgramName}
                     onChange={(e) => setEditedProgramName(e.target.value)}
                   />
-                  <input
-                    type="text"
+                  <textarea
                     value={editedProgramDescription}
                     onChange={(e) =>
                       setEditedProgramDescription(e.target.value)
                     }
+                    rows={3}
                     placeholder="Edit description"
                   />
-                  <button onClick={() => saveEditProgram(program.id)}>
-                    Save
-                  </button>
-                  <button onClick={() => setEditingProgramId(null)}>
-                    Cancel
-                  </button>
+                  <div className="edit-buttons">
+                    <button onClick={() => saveEditProgram(program.id)}>
+                      Save
+                    </button>
+                    <button onClick={() => setEditingProgramId(null)}>
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               ) : (
-                <>
+                <div className="program-view" key={`${program.id}-view`}>
                   <Link to={`/programs/${program.id}`} className="program-link">
                     <h3>{program.name}</h3>
                   </Link>
-                  <p className="program-description">
-                    {program.description}
-                  </p>
+                  <p className="program-description">{program.description}</p>
                   <div className="program-actions">
                     <button onClick={() => startEditProgram(program)}>
                       Edit
@@ -152,12 +164,15 @@ export default function ProgramsPage() {
                       Delete
                     </button>
                   </div>
-                </>
+                </div>
               )}
             </div>
           ))}
         </div>
       </div>
+
+      {/* ✅ Toast notifications container */}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }

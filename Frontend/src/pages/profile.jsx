@@ -1,54 +1,93 @@
-import React, { useState } from "react";
-import "../styles/profile.css";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { useAuth } from "../components/authcontext";
+import "../styles/profile.css";
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { token } = useAuth();
 
-  const [avatar, setAvatar] = useState(localStorage.getItem("avatar") || null);
-  const [bio, setBio] = useState(localStorage.getItem("bio") || "");
+  const [profile, setProfile] = useState(null);
+  const [bio, setBio] = useState("");
   const [editingBio, setEditingBio] = useState(false);
+  const [achievements, setAchievements] = useState([]);
+  const [leaderboard, setLeaderboard] = useState([]);
 
-  const [achievements] = useState([
-    { id: 1, name: "First Login", earned: true },
-    { id: 2, name: "1 Week Streak", earned: false },
-    { id: 3, name: "First Program Created", earned: true },
-    { id: 4, name: "10 Workouts Completed", earned: false },
-    { id: 5, name: "First Favorite Added", earned: true },
-  ]);
+  // avatar state
+  const [avatarKey, setAvatarKey] = useState("avatar_guest");
+  const [avatar, setAvatar] = useState(localStorage.getItem("avatar_guest") || null);
 
-  const [favorites] = useState({
-    exercises: ["Push Ups", "Deadlift"],
-    programs: ["Full Body Beginner", "Strength Split"],
-  });
+  // Fetch profile (username + bio)
+  useEffect(() => {
+    if (!token) return;
+    axios
+      .get("http://localhost:5000/api/users/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        setProfile(res.data);
+        setBio(res.data.bio || "");
+      })
+      .catch((err) => console.error("❌ Error fetching profile:", err));
+  }, [token]);
 
-  const [leaderboard] = useState([
-    { username: "Alice", achievements: 5 },
-    { username: "Bob", achievements: 3 },
-    { username: "You", achievements: 2 },
-  ]);
+  // When profile is loaded, set avatarKey based on user id
+  useEffect(() => {
+    if (profile?.id) {
+      const key = `avatar_${profile.id}`;
+      setAvatarKey(key);
+      setAvatar(localStorage.getItem(key) || null);
+    }
+  }, [profile]);
 
+  // Fetch unlocked achievements
+  useEffect(() => {
+    if (!token) return;
+    axios
+      .get("http://localhost:5000/api/achievements/me/unlocked", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setAchievements(res.data))
+      .catch((err) => console.error("❌ Error fetching achievements:", err));
+  }, [token]);
+
+  // Fetch leaderboard (login streaks)
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/users/leaderboard")
+      .then((res) => setLeaderboard(res.data))
+      .catch((err) => console.error("❌ Error fetching leaderboard:", err));
+  }, []);
+
+  // Change avatar (stored per-user in localStorage)
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatar(reader.result);
-        localStorage.setItem("avatar", reader.result);
+        localStorage.setItem(avatarKey, reader.result); // ✅ per-user key
       };
       reader.readAsDataURL(file);
     }
   };
 
+  // Save bio to backend
   const saveBio = () => {
-    localStorage.setItem("bio", bio);
-    setEditingBio(false);
+    axios
+      .put(
+        "http://localhost:5000/api/users/profile",
+        { bio },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      .then(() => setEditingBio(false))
+      .catch((err) => console.error("❌ Error saving bio:", err));
   };
 
   return (
     <div className="profile-page">
       <div className="profile-container">
 
+        {/* Header */}
         <div className="profile-header">
           <label htmlFor="avatar-upload">
             <img
@@ -64,9 +103,10 @@ export default function ProfilePage() {
             onChange={handleAvatarChange}
             style={{ display: "none" }}
           />
-          <h2>{user || "Unnamed User"}</h2>
+          <h2>{profile?.username || "Unnamed User"}</h2>
         </div>
 
+        {/* Bio */}
         <div className="bio-section">
           <h3>📝 Bio</h3>
           {editingBio ? (
@@ -85,64 +125,46 @@ export default function ProfilePage() {
           )}
         </div>
 
+        {/* Achievements */}
         <div className="achievements-section">
           <h3>🏆 Achievements</h3>
-          <div className="achievements-grid">
-            {achievements.map((ach) => (
-              <div
-                key={ach.id}
-                className={`achievement ${ach.earned ? "earned" : "locked"}`}
-              >
-                {ach.name}
-              </div>
-            ))}
-          </div>
+          {achievements.length === 0 ? (
+            <p>No achievements unlocked yet.</p>
+          ) : (
+            <div className="achievements-grid">
+              {achievements.map((ach) => (
+                <div key={ach.id} className="achievement earned" title={ach.description}>
+                  {ach.name}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div className="favorites-section">
-          <h3>⭐ Favorites</h3>
-          <div className="favorites">
-            <div>
-              <h4>Exercises</h4>
-              <ul>
-                {favorites.exercises.map((ex, i) => (
-                  <li key={i}>{ex}</li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4>Programs</h4>
-              <ul>
-                {favorites.programs.map((p, i) => (
-                  <li key={i}>{p}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-
+        {/* Leaderboard */}
         <div className="leaderboard-section">
-          <h3>📊 Leaderboard</h3>
+          <h3>📊 Leaderboard (by streak)</h3>
           <table>
             <thead>
               <tr>
                 <th>User</th>
-                <th>Achievements</th>
+                <th>Login Streak</th>
               </tr>
             </thead>
             <tbody>
-              {leaderboard.map((entry, i) => (
+              {leaderboard.map((entry) => (
                 <tr
-                  key={i}
-                  className={entry.username === (user || "You") ? "highlight" : ""}
+                  key={entry.id}
+                  className={entry.username === profile?.username ? "highlight" : ""}
                 >
                   <td>{entry.username}</td>
-                  <td>{entry.achievements}</td>
+                  <td>{entry.loginStreak}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+
       </div>
     </div>
   );

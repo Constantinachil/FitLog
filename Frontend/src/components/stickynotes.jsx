@@ -1,85 +1,133 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Draggable from "react-draggable";
 import "../styles/stickynotes.css";
+import axios from "axios";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function StickyNotes() {
   const [notes, setNotes] = useState([]);
+  const token = localStorage.getItem("token"); // JWT
 
-  // Load notes from localStorage on first render
+  const api = axios.create({
+    baseURL: "http://localhost:5000/api/stickynotes", // adjust to backend
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  // Load notes
   useEffect(() => {
-    const saved = localStorage.getItem("dailyNotes");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      setNotes(
-        parsed.map((note) => ({
-          ...note,
-          nodeRef: React.createRef() // create new ref every time
-        }))
-      );
-    }
+    const fetchNotes = async () => {
+      try {
+        const res = await api.get("/");
+        setNotes(
+          res.data.map((note) => ({
+            ...note,
+            text: note.content,
+            nodeRef: React.createRef(),
+          }))
+        );
+      } catch (err) {
+        console.error("❌ Error fetching notes:", err);
+        toast.error("❌ Failed to load sticky notes");
+      }
+    };
+    fetchNotes();
   }, []);
 
-  // Save notes to localStorage whenever they change
-  useEffect(() => {
-    const saveable = notes.map(({ nodeRef, ...rest }) => rest);
-    localStorage.setItem("dailyNotes", JSON.stringify(saveable));
-  }, [notes]);
-
-  const addNote = () => {
+  const addNote = async () => {
     if (notes.length >= 10) {
-      alert("⚠️ You can only have up to 10 goals.");
+      toast.warning("⚠️ You can only have up to 10 notes.");
       return;
     }
-    const newNote = {
-      id: Date.now(),
-      text: "",
-      x: 350,
-      y: 200,
-      nodeRef: React.createRef()
-    };
-    setNotes((prev) => [...prev, newNote]);
+    try {
+      const res = await api.post("/", { content: "" });
+      setNotes((prev) => [
+        ...prev,
+        {
+          ...res.data.note,
+          text: res.data.note.content,
+          nodeRef: React.createRef(),
+        },
+      ]);
+
+      // 🎉 Achievement toasts
+      if (res.data.achievementsUnlocked?.length > 0) {
+        res.data.achievementsUnlocked.forEach((ach) => {
+          toast.success(`🎉 Achievement unlocked: ${ach}`);
+        });
+      }
+    } catch (err) {
+      console.error("❌ Error adding note:", err);
+      toast.error("❌ Failed to add note");
+    }
   };
 
-  const updateNote = (id, newText) => {
+  const saveNote = async (id, updated) => {
+    try {
+      await api.put(`/${id}`, updated);
+    } catch (err) {
+      console.error("❌ Error saving note:", err);
+      toast.error("❌ Failed to save note");
+    }
+  };
+
+  const updateNoteText = (id, newText) => {
     setNotes((prev) =>
       prev.map((n) => (n.id === id ? { ...n, text: newText } : n))
     );
   };
 
-  const deleteNote = (id) => {
-    setNotes((prev) => prev.filter((n) => n.id !== id));
+  const deleteNote = async (id) => {
+    try {
+      await api.delete(`/${id}`);
+      setNotes((prev) => prev.filter((n) => n.id !== id));
+    } catch (err) {
+      console.error("❌ Error deleting note:", err);
+      toast.error("❌ Failed to delete note");
+    }
   };
 
   const onDragStop = (id, data) => {
     setNotes((prev) =>
-      prev.map((n) =>
-        n.id === id ? { ...n, x: data.x, y: data.y } : n
-      )
+      prev.map((n) => (n.id === id ? { ...n, x: data.x, y: data.y } : n))
     );
+    saveNote(id, { x: data.x, y: data.y });
   };
 
   return (
     <>
       <div className="widget goal-widget">
-        <h4>🏋️‍♀️ Goals</h4>
-        <button className="add-btn" onClick={addNote}>+ Add Goal</button>
-        <p>{notes.length}/10 goals</p>
+        <h4>📝 Goals</h4>
+        <button className="add-btn" onClick={addNote}>
+          + Add Note
+        </button>
+        <p>{notes.length}/10 notes</p>
       </div>
 
       <div className="notes-layer">
         {notes.map((note) => (
           <Draggable
             key={note.id}
-            nodeRef={note.nodeRef}   // ✅ required for React 18
-            defaultPosition={{ x: note.x, y: note.y }}
+            nodeRef={note.nodeRef}
+            defaultPosition={{ x: note.x || 100, y: note.y || 100 }}
             onStop={(e, data) => onDragStop(note.id, data)}
           >
             <div ref={note.nodeRef} className="note">
               <textarea
                 value={note.text}
-                onChange={(e) => updateNote(note.id, e.target.value)}
+                onChange={(e) => updateNoteText(note.id, e.target.value)}
+                onBlur={(e) =>
+                  saveNote(note.id, {
+                    content: e.target.value,
+                    x: note.x,
+                    y: note.y,
+                  })
+                }
               />
-              <button className="delete-btn" onClick={() => deleteNote(note.id)}>
+              <button
+                className="delete-btn"
+                onClick={() => deleteNote(note.id)}
+              >
                 ✕
               </button>
             </div>

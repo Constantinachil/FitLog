@@ -15,6 +15,10 @@ import DefaultProgramDetailPage from "./pages/DefaultProgramDetailPage";
 import { AuthProvider, useAuth } from "./components/authcontext.js";
 import ProgramDetailPage from "./pages/programdetailpage";
 
+// ✅ import toastify
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 function AppRoutes() {
   const { isLoggedIn } = useAuth();
 
@@ -60,7 +64,8 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      <Route path="/programs/:id"
+      <Route
+        path="/programs/:id"
         element={
           <ProtectedRoute>
             <ProgramDetailPage />
@@ -124,6 +129,8 @@ function App() {
       <AuthProvider>
         <Layout>
           <AppRoutes />
+          {/* ✅ Toast container added globally */}
+          <ToastContainer position="top-right" autoClose={3000} />
         </Layout>
       </AuthProvider>
     </Router>

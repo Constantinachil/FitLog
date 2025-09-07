@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";   // 👈 import navigate
 import "../styles/login_signupPage.css";
 
 export default function ForgotPassword() {
@@ -9,6 +10,8 @@ export default function ForgotPassword() {
   const [securityAnswer, setSecurityAnswer] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [message, setMessage] = useState("");
+
+  const navigate = useNavigate(); // 👈 hook
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
@@ -33,11 +36,13 @@ export default function ForgotPassword() {
         securityAnswer,
         newPassword,
       });
-      setMessage("Password reset successful! You can now log in.");
-      setStep(1);
-      setEmail("");
-      setSecurityAnswer("");
-      setNewPassword("");
+
+      // 👇 redirect to login after success
+      setMessage("Password reset successful! Redirecting to login...");
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500); // wait 1.5s so they see the message
+
     } catch (err) {
       setMessage(err.response?.data?.error || "Error resetting password.");
     }
