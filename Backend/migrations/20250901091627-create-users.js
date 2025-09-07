@@ -90,41 +90,9 @@ module.exports = {
       updatedAt: { type: Sequelize.DATE, allowNull: false }
     });
 
-    // Achievements
-    await queryInterface.createTable('Achievements', {
-      id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
-      name: { type: Sequelize.STRING, allowNull: false },
-      description: { type: Sequelize.TEXT },
-      type: { type: Sequelize.STRING, allowNull: false }, // e.g. login_streak, programs_made
-      threshold: { type: Sequelize.INTEGER, allowNull: false },
-      createdAt: { type: Sequelize.DATE, allowNull: false },
-      updatedAt: { type: Sequelize.DATE, allowNull: false }
-    });
-
-    // UserAchievements
-    await queryInterface.createTable('UserAchievements', {
-      id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
-      userId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: { model: 'Users', key: 'id' },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
-      },
-      achievementId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: { model: 'Achievements', key: 'id' },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
-      },
-      earnedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
-    });
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable('UserAchievements');
-    await queryInterface.dropTable('Achievements');
     await queryInterface.dropTable('ProgramExercises');
     await queryInterface.dropTable('Exercises');
     await queryInterface.dropTable('Programs');

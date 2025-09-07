@@ -5,6 +5,7 @@ const { Sequelize } = require('sequelize');
 
 
 
+
 exports.getUsers = async (req, res) => {
   const users = await User.findAll();
   res.json(users);
@@ -98,7 +99,7 @@ exports.loginUser = async (req, res) => {
     // 🎖️ Achievement unlock example
   console.log("➡️ Checking achievements...");
   let newAchievement = null;
-  const achievements = await Achievement.findAll({ where: { type: 'login_streak' } });
+  const achievements = await Achievement.findAll({ where: { category: 'login_streak' } });
   console.log("✅ Achievements checked:", achievements.length);
 
   for (const ach of achievements) {
@@ -230,6 +231,20 @@ exports.getUserStreak = async (req, res) => {
       streak: user.loginStreak,
       maxStreak: user.maxStreak
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getLeaderboard = async (req, res) => {
+  try {
+    const users = await User.findAll({
+      attributes: ['id', 'username', 'loginStreak'],
+      order: [['loginStreak', 'DESC']],
+      limit: 10
+    });
+
+    res.json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

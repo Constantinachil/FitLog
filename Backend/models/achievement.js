@@ -1,15 +1,13 @@
-// models/achievement.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/db");
 
-const Achievement = sequelize.define('Achievement', {
+const Achievement = sequelize.define("Achievement", {
+  key: { type: DataTypes.STRING, allowNull: false, unique: true },
   name: { type: DataTypes.STRING, allowNull: false },
-  description: { type: DataTypes.TEXT, allowNull: true },
-  type: { type: DataTypes.STRING, allowNull: false }, 
-  threshold: { type: DataTypes.INTEGER, allowNull: false }
-}, {
-  tableName: 'Achievements',
-  timestamps: true
+  description: DataTypes.STRING,
+  category: { type: DataTypes.STRING, allowNull: false },
+  threshold: { type: DataTypes.INTEGER, allowNull: false },
+  icon: DataTypes.STRING,
 });
 
 module.exports = Achievement;

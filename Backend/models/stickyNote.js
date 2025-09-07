@@ -8,14 +8,23 @@ const StickyNote = sequelize.define(
     content: {
       type: DataTypes.STRING(500),
       allowNull: false,
+      defaultValue: "",        // allow blank note at creation
       validate: {
-        notEmpty: true,
-        len: [1, 500],
+        len: [0, 500],         // only enforce max length
       },
     },
-    // Optional extras you can add later:
-    // color: DataTypes.STRING(20),
-    // position: DataTypes.JSON, // {x:0, y:0}
+    x: {
+      type: DataTypes.INTEGER,
+      defaultValue: 100,       // default X position
+    },
+    y: {
+      type: DataTypes.INTEGER,
+      defaultValue: 100,       // default Y position
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,        // links to User
+    },
   },
   {
     tableName: "StickyNotes",

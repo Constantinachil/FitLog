@@ -1,12 +1,10 @@
-// models/userAchievement.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/db");
 
-const UserAchievement = sequelize.define('UserAchievement', {
-  earnedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
-}, {
-  tableName: 'UserAchievements',
-  timestamps: false
+const UserAchievement = sequelize.define("UserAchievement", {
+  userId: { type: DataTypes.INTEGER, allowNull: false },
+  achievementId: { type: DataTypes.INTEGER, allowNull: false },
+  unlockedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
 });
 
 module.exports = UserAchievement;

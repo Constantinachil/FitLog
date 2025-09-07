@@ -8,6 +8,10 @@ const programRoutes = require('./routes/programRoutes');
 const exerciseRoutes = require('./routes/exerciseRoutes');
 const stickyNoteRoutes = require("./routes/stickyNoteRoutes");
 const defaultProgramRoutes = require("./routes/defaultProgramRoutes");
+const initAchievements = require("./utils/InitAchievements");
+const achievementRoutes = require("./routes/achievementRoutes");
+const { initDefaultPrograms } = require("./utils/initDefaults");
+const { initSecurityQuestions } = require("./utils/initSecurityQuestions");
 
 dotenv.config();
 const app = express();
@@ -28,11 +32,15 @@ app.use('/api/security-questions', securityQuestionRoutes);
 app.use('/api/exercises', exerciseRoutes);
 app.use("/api/stickynotes", stickyNoteRoutes);
 app.use("/api/default-programs", defaultProgramRoutes);
+app.use("/api/achievements", achievementRoutes);
 
 // DB + Server
 sequelize.authenticate()
-  .then(() => {
+  .then(async() => {
     console.log('MySQL connected');
+    await initAchievements();
+    await initDefaultPrograms();
+    await initSecurityQuestions(); 
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });

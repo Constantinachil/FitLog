@@ -2,6 +2,8 @@
 const { Exercise, Program } = require('../models');
 const axios = require('axios');
 const { Op } = require("sequelize");
+const { checkProgressAndAward } = require("../services/achievementService");
+
 
 exports.createExercise = async (req, res) => {
   try {
@@ -78,12 +80,21 @@ exports.createExercise = async (req, res) => {
       delete plain.Programs;
     }
 
-    res.status(201).json(plain);
+    // ✅ Use program’s owner for achievements
+    const userId = program.createdBy;  // or req.user.id if you prefer
+    const result = await checkProgressAndAward(userId, "exercises_added");
+
+    return res.status(201).json({
+      exercise: plain,
+      achievementsUnlocked: result.newlyUnlocked,
+    });
+
   } catch (err) {
     console.error("Error creating exercise:", err);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 
 

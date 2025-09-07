@@ -21,8 +21,19 @@ Exercise.belongsToMany(Program, { through: ProgramExercise, foreignKey: 'exercis
 User.hasMany(Program, { foreignKey: 'createdBy'});
 Program.belongsTo(User, { foreignKey: 'createdBy'});
 
+// ProgramExercise direct associations
+ProgramExercise.belongsTo(Program, { foreignKey: "programId" });
+Program.hasMany(ProgramExercise, { foreignKey: "programId" });
+
+ProgramExercise.belongsTo(Exercise, { foreignKey: "exerciseId" });
+Exercise.hasMany(ProgramExercise, { foreignKey: "exerciseId" });
+
+
 User.belongsToMany(Achievement, { through: UserAchievement, foreignKey: 'userId' });
 Achievement.belongsToMany(User, { through: UserAchievement, foreignKey: 'achievementId' });
+
+UserAchievement.belongsTo(User, { foreignKey: "userId" });
+UserAchievement.belongsTo(Achievement, { foreignKey: "achievementId" });
 
 User.hasMany(StickyNote, { foreignKey: 'userId' });
 StickyNote.belongsTo(User, { foreignKey: 'userId' });

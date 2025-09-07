@@ -1,0 +1,12 @@
+const express = require("express");
+const router = express.Router();
+const achievementController = require("../controllers/achievementController");
+const authMiddleware = require("../middlewares/authMiddleware");
+
+// Get all achievements with unlocked = true/false
+router.get("/me", authMiddleware, achievementController.myAchievements);
+
+// Get only unlocked achievements
+router.get("/me/unlocked", authMiddleware, achievementController.myUnlockedAchievements);
+
+module.exports = router;

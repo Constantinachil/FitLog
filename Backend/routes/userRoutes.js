@@ -14,5 +14,7 @@ router.put('/profile', protect, userController.updateProfile);
 router.get('/profile', protect, (req, res) => {
   res.json({ message: `Hello ${req.user.username}!` });
 });
+router.get("/leaderboard", userController.getLeaderboard);
+
 
 module.exports = router;

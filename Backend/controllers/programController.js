@@ -1,32 +1,52 @@
 const { Program, User, Exercise, ProgramExercise } = require('../models');
 const axios = require('axios');
-
+const { checkProgressAndAward } = require("../services/achievementService");
 // Create a new program
 exports.createProgram = async (req, res) => {
   try {
     const { name, description } = req.body;
 
-    // Example: user ID comes from JWT auth
-    const createdBy = req.user.id; 
+    // User ID comes from JWT auth middleware
+    const userId = req.user.id;
 
-    const program = await Program.create({ name, description, createdBy });
-    res.status(201).json(program);
+    // Create program
+    const program = await Program.create({
+      name,
+      description: description || "",
+      createdBy: userId,
+    });
+
+    // Check achievements
+    const result = await checkProgressAndAward(userId, "programs_made");
+
+    return res.status(201).json({
+      program,
+      achievementsUnlocked: result.newlyUnlocked,
+    });
   } catch (err) {
+    console.error("❌ Error creating program:", err);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Get all programs
 exports.getPrograms = async (req, res) => {
   try {
+    const userId = req.user.id; // comes from auth middleware (JWT)
+
     const programs = await Program.findAll({
-      include: { model: User, attributes: ['id', 'username'] }
+      where: { createdBy: userId }, // ✅ only programs made by this user
+      include: { model: User, attributes: ["id", "username"] },
     });
+
     res.json(programs);
   } catch (err) {
+    console.error("Error fetching programs:", err);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Get single program by ID
 exports.getProgramById = async (req, res) => {
@@ -81,11 +101,9 @@ exports.addExerciseToProgram = async (req, res) => {
     let exercise;
 
     if (exerciseId) {
-      // Case 1: existing exercise in DB
       exercise = await Exercise.findByPk(exerciseId);
       if (!exercise) return res.status(404).json({ error: "Exercise not found" });
     } else if (apiExerciseId) {
-      // Case 2: import from ExerciseDB if not in DB
       exercise = await Exercise.findOne({ where: { sourceId: apiExerciseId } });
 
       if (!exercise) {
@@ -117,9 +135,7 @@ exports.addExerciseToProgram = async (req, res) => {
         });
       }
     } else {
-      return res
-        .status(400)
-        .json({ error: "No exerciseId or apiExerciseId provided" });
+      return res.status(400).json({ error: "No exerciseId or apiExerciseId provided" });
     }
 
     // Link exercise with metadata in the join table
@@ -154,14 +170,22 @@ exports.addExerciseToProgram = async (req, res) => {
       ],
     });
 
-    // ✅ Flatten response for frontend
+    // Flatten response for frontend
     const plain = exerciseWithJoin.get({ plain: true });
     if (plain.Programs && plain.Programs.length > 0) {
       plain.ProgramExercise = plain.Programs[0].ProgramExercise;
       delete plain.Programs;
     }
 
-    res.json(plain);
+    // Award achievements
+    const userId = req.user.id;
+    const result = await checkProgressAndAward(userId, "exercises_added");
+
+    // ✅ Send one response
+    res.status(201).json({
+      exercise: plain,
+      achievementsUnlocked: result.newlyUnlocked,
+    });
   } catch (err) {
     console.error("Error adding exercise:", err);
     res.status(500).json({ error: err.message });
